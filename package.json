@@ -1,0 +1,25 @@
+{
+  "name": "sw2026-ecommerce-api",
+  "version": "1.0.0",
+  "description": "In-memory e-commerce REST API with JWT auth and checkout",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "keywords": [
+    "express",
+    "jwt",
+    "ecommerce",
+    "api"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "swagger-ui-express": "^5.0.1",
+    "yamljs": "^0.3.0"
+  }
+}

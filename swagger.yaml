@@ -1,0 +1,296 @@
+openapi: 3.0.3
+info:
+  title: E-commerce REST API
+  description: |
+    In-memory e-commerce API that allows users to register, login (JWT),
+    and perform checkout with cash or credit card.
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:3000
+    description: Local development server
+
+tags:
+  - name: Auth
+    description: User registration and authentication
+  - name: Checkout
+    description: Order checkout operations
+  - name: Health
+    description: Service health status
+
+paths:
+  /register:
+    post:
+      tags:
+        - Auth
+      summary: Register a new user
+      description: Creates a new user account in memory.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+            example:
+              name: John Doe
+              email: john@example.com
+              password: password123
+      responses:
+        '201':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegisterResponse'
+        '400':
+          description: Missing required fields
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Email already registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /login:
+    post:
+      tags:
+        - Auth
+      summary: Login and get JWT token
+      description: Authenticates a user and returns a JWT token.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+            example:
+              email: alice@example.com
+              password: password123
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '400':
+          description: Missing email or password
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /checkout:
+    post:
+      tags:
+        - Checkout
+      summary: Perform checkout
+      description: |
+        Places an order for authenticated users.
+        Accepted payment methods: `cash` or `credit_card`.
+        Cash payments receive a 10% discount.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CheckoutRequest'
+            example:
+              paymentMethod: cash
+              items:
+                - productId: 1
+                  quantity: 2
+                - productId: 3
+                  quantity: 1
+      responses:
+        '200':
+          description: Checkout completed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CheckoutResponse'
+        '400':
+          description: Invalid payment method or items
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid JWT token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Product not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /healthcheck:
+    get:
+      tags:
+        - Health
+      summary: Health check
+      description: Returns the health status of the API.
+      responses:
+        '200':
+          description: API is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    RegisterRequest:
+      type: object
+      required:
+        - name
+        - email
+        - password
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+
+    RegisterResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        user:
+          $ref: '#/components/schemas/User'
+
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+
+    LoginResponse:
+      type: object
+      properties:
+        token:
+          type: string
+        user:
+          $ref: '#/components/schemas/User'
+
+    CheckoutRequest:
+      type: object
+      required:
+        - paymentMethod
+        - items
+      properties:
+        paymentMethod:
+          type: string
+          enum:
+            - cash
+            - credit_card
+        items:
+          type: array
+          minItems: 1
+          items:
+            type: object
+            required:
+              - productId
+              - quantity
+            properties:
+              productId:
+                type: integer
+              quantity:
+                type: integer
+                minimum: 1
+
+    CheckoutResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        userId:
+          type: integer
+        paymentMethod:
+          type: string
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              productId:
+                type: integer
+              name:
+                type: string
+              unitPrice:
+                type: number
+              quantity:
+                type: integer
+              lineTotal:
+                type: number
+        subtotal:
+          type: number
+        discount:
+          type: number
+        discountRate:
+          type: number
+        total:
+          type: number
+
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: ok
+        message:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
