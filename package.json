@@ -6,8 +6,9 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
-    "test": "mocha 'test/**/*.js' --reporter mochawesome --reporter-options reportDir=mochawesome-report,reportFilename=path-coverage,overwrite=true,html=true,json=true",
-    "test:path-coverage": "mocha 'test/pathCoverage/**/*.js' --reporter mochawesome --reporter-options reportDir=mochawesome-report,reportFilename=path-coverage,overwrite=true,html=true,json=true"
+    "test": "mocha 'test/pathCoverage/**/*.js' --reporter mochawesome --reporter-options reportDir=mochawesome-report,reportFilename=path-coverage,overwrite=true,html=true,json=true",
+    "test:path-coverage": "mocha 'test/pathCoverage/**/*.js' --reporter mochawesome --reporter-options reportDir=mochawesome-report,reportFilename=path-coverage,overwrite=true,html=true,json=true",
+    "test:load": "k6 run test/loadTesting/login.js"
   },
 
   "keywords": [
