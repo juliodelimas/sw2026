@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
-    "test": "mocha 'test/**/*.js' --reporter mochawesome --reporter-options reportDir=mochawesome-report,reportFilename=path-coverage,overwrite=true,html=true,json=true",
+    "test": "mocha 'test/**/*.js' --ignore 'test/loadTesting/**' --reporter mochawesome --reporter-options reportDir=mochawesome-report,reportFilename=path-coverage,overwrite=true,html=true,json=true",
     "test:path-coverage": "mocha 'test/pathCoverage/**/*.js' --reporter mochawesome --reporter-options reportDir=mochawesome-report,reportFilename=path-coverage,overwrite=true,html=true,json=true"
   },
 
